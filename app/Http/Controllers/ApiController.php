@@ -16,9 +16,14 @@ class ApiController extends Controller
         $this->apiService = $apiService;
     }
 
-    public function vehiclesGetAction(int $year, string $manufacturer, string $model): JsonResponse
+    public function vehiclesGetAction(string $year, string $manufacturer, string $model, Request $request): JsonResponse
     {
-        $response = $this->apiService->getVehicles($year, $manufacturer, $model);
+        if ($request->query('withRating') === 'true') {
+            $response = $this->apiService->getVehiclesWithRating($year, $manufacturer, $model);
+        } else {
+            $response = $this->apiService->getVehicles($year, $manufacturer, $model);
+        }
+
         return new JsonResponse($response);
     }
 

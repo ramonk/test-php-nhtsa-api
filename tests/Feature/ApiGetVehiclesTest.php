@@ -27,6 +27,13 @@ class ApiGetVehiclesTest extends TestCase
     {
         $response = $this->get('/vehicles/2013/Ford/CrownVictoria');
 
-        $response->assertExactJson(ApiVehiclesResults::FORD_CROWN_VICTORIA);
+        $response->assertExactJson(ApiVehiclesResults::EMPTY_RESULT);
+    }
+
+    public function testFordFusion()
+    {
+        $response = $this->get('/vehicles/undefined/Ford/Fusion');
+
+        $response->assertExactJson(ApiVehiclesResults::EMPTY_RESULT);
     }
 }

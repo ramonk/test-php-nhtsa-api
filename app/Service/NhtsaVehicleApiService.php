@@ -3,30 +3,70 @@
 namespace App\Service;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Response;
 
 class NhtsaVehicleApiService
 {
 
-    private const VEHICLES_URL =
-        'https://one.nhtsa.gov/webapi/api/SafetyRatings/modelyear/{year}/make/{manufacturer}/model/{model}?format=json';
+    private const BASE_URI = 'https://one.nhtsa.gov/webapi/api/SafetyRatings/';
+    private const VEHICLES_URI = 'modelyear/{year}/make/{manufacturer}/model/{model}?format=json';
+    private const RATING_URI = 'VehicleId/{id}?format=json';
 
-    public function getVehicles(int $year, string $manufacturer, string $model): array
+    /**
+     * @var Client
+     */
+    private $client;
+
+    public function __construct()
     {
-        $client = new Client();
-        $url = str_replace(['{year}', '{manufacturer}', '{model}'], [$year, $manufacturer, $model], self::VEHICLES_URL);
-        $response = $client->request('GET', $url);
+        $this->client = new Client([
+            'base_uri' => self::BASE_URI,
+        ]);
+    }
 
-        $content = \GuzzleHttp\json_decode($response->getBody()->getContents(), true);
+    public function getVehicles(?string $year, ?string $manufacturer, ?string $model): array
+    {
+        $url = str_replace(['{year}', '{manufacturer}', '{model}'], [$year, $manufacturer, $model], self::VEHICLES_URI);
+        try {
+            $response = $this->client->request('GET', $url);
+            $content = $this->getContent($response);
 
-        unset($content['Message']);
+            unset($content['Message']);
 
-        $content['Results'] = array_map(function (array $result) {
-            $result['Description'] = $result['VehicleDescription'];
-            unset($result['VehicleDescription']);
-            return $result;
-        }, $content['Results']);
+            $content['Results'] = array_map(function (array $result) {
+                $result['Description'] = $result['VehicleDescription'];
+                unset($result['VehicleDescription']);
+                return $result;
+            }, $content['Results']);
+        } catch (\Throwable $exception) {
+            $content = [
+                'Count' => 0,
+                'Results' => [],
+            ];
+        }
 
         return $content;
+    }
+
+    public function getVehiclesWithRating(?string $year, ?string $manufacturer, ?string $model): array
+    {
+        $vehicles = $this->getVehicles($year, $manufacturer, $model);
+
+        $vehicles['Results'] = array_map(function (array $result) {
+            $url = str_replace('{id}', $result['VehicleId'], self::RATING_URI);
+            $response = $this->client->request('GET', $url);
+            $content = $this->getContent($response);
+
+            $result['CrashRating'] = $content['Results'][0]['OverallRating'];
+            return $result;
+        }, $vehicles['Results']);
+
+        return $vehicles;
+    }
+
+    private function getContent(Response $response): array
+    {
+        return \GuzzleHttp\json_decode($response->getBody()->getContents(), true);
     }
 
 }

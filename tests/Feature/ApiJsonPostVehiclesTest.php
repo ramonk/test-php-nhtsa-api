@@ -37,6 +37,16 @@ class ApiJsonPostVehiclesTest extends TestCase
             '/vehicles',
             ['modelYear' => 2013, 'manufacturer' => 'Ford', 'model' => 'CrownVictoria']
         );
-        $response->assertExactJson(ApiVehiclesResults::FORD_CROWN_VICTORIA);
+        $response->assertExactJson(ApiVehiclesResults::EMPTY_RESULT);
+    }
+
+    public function testHondaAccord()
+    {
+        $response = $this->json(
+            'POST',
+            '/vehicles',
+            ['manufacturer' => 'Honda', 'model' => 'Accord']
+        );
+        $response->assertExactJson(ApiVehiclesResults::EMPTY_RESULT);
     }
 }
