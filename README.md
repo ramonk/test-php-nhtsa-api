@@ -7,6 +7,8 @@ Recommended environment is [XAMPP 7.1.7](https://sourceforge.net/projects/xampp/
 
 Run `composer install`.
 
+Rename `.env.local` to `.env`
+
 ## Usage
 
 Start server with `composer server-start`.
