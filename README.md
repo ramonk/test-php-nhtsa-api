@@ -10,3 +10,7 @@ Run `composer install`.
 Start server with `composer server-start`.
 
 API URL will be `http://localhost:8080`.
+
+## Tests
+
+Run tests with `vendor/bin/phpunit`
