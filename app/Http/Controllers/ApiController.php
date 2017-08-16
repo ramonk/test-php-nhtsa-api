@@ -9,6 +9,9 @@ use Illuminate\Http\Request;
 class ApiController extends Controller
 {
 
+    /**
+     * @var NhtsaVehicleApiService
+     */
     private $apiService;
 
     public function __construct(NhtsaVehicleApiService $apiService)
@@ -36,6 +39,5 @@ class ApiController extends Controller
         $response = $this->apiService->getVehicles($year, $manufacturer, $model);
         return new JsonResponse($response);
     }
-
 
 }

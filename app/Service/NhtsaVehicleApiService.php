@@ -26,17 +26,21 @@ class NhtsaVehicleApiService
 
     public function getVehicles(?string $year, ?string $manufacturer, ?string $model): array
     {
-        $url = str_replace(['{year}', '{manufacturer}', '{model}'], [$year, $manufacturer, $model], self::VEHICLES_URI);
+        $url = str_replace(
+            ['{year}', '{manufacturer}', '{model}'],
+            [$year, $manufacturer, $model],
+            self::VEHICLES_URI
+        );
         try {
             $response = $this->client->request('GET', $url);
             $content = $this->getContent($response);
 
             unset($content['Message']);
 
-            $content['Results'] = array_map(function (array $result) {
-                $result['Description'] = $result['VehicleDescription'];
-                unset($result['VehicleDescription']);
-                return $result;
+            $content['Results'] = array_map(function (array $vehicle) {
+                $vehicle['Description'] = $vehicle['VehicleDescription'];
+                unset($vehicle['VehicleDescription']);
+                return $vehicle;
             }, $content['Results']);
         } catch (\Throwable $exception) {
             $content = [
@@ -52,13 +56,13 @@ class NhtsaVehicleApiService
     {
         $vehicles = $this->getVehicles($year, $manufacturer, $model);
 
-        $vehicles['Results'] = array_map(function (array $result) {
-            $url = str_replace('{id}', $result['VehicleId'], self::RATING_URI);
+        $vehicles['Results'] = array_map(function (array $vehicle) {
+            $url = str_replace('{id}', $vehicle['VehicleId'], self::RATING_URI);
             $response = $this->client->request('GET', $url);
             $content = $this->getContent($response);
 
-            $result['CrashRating'] = $content['Results'][0]['OverallRating'];
-            return $result;
+            $vehicle['CrashRating'] = $content['Results'][0]['OverallRating'];
+            return $vehicle;
         }, $vehicles['Results']);
 
         return $vehicles;

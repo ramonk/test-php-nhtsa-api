@@ -3,9 +3,6 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class ApiGetVehiclesWithRatingTest extends TestCase
 {
@@ -19,14 +16,12 @@ class ApiGetVehiclesWithRatingTest extends TestCase
     public function testToyotaYaris()
     {
         $response = $this->get('/vehicles/2015/Toyota/Yaris?withRating=true');
-
         $response->assertExactJson(ApiVehiclesResults::TOYOTA_YARIS_WITH_RATING);
     }
 
     public function testFordCrownVictoria()
     {
         $response = $this->get('/vehicles/2013/Ford/CrownVictoria?withRating=true');
-
         $response->assertExactJson(ApiVehiclesResults::EMPTY_RESULT);
     }
 
