@@ -2,29 +2,35 @@
 
 namespace App\Http\Controllers;
 
-use GuzzleHttp\Client;
+use App\Service\NhtsaVehicleApiService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class ApiController extends Controller
 {
-    private const VEHICLES_URL = 'https://one.nhtsa.gov/webapi/api/SafetyRatings/modelyear/{year}/make/{manufacturer}/model/{model}?format=json';
 
-    public function vehiclesAction($year, $manufacturer, $model)
+    private $apiService;
+
+    public function __construct(NhtsaVehicleApiService $apiService)
     {
-        $client = new Client();
-        $url = str_replace(['{year}', '{manufacturer}', '{model}'], [$year, $manufacturer, $model], self::VEHICLES_URL);
-        $response = $client->request('GET', $url);
-
-        $content = \GuzzleHttp\json_decode($response->getBody()->getContents(), true);
-
-        unset($content['Message']);
-
-        $content['Results'] = array_map(function (array $result) {
-            $result['Description'] = $result['VehicleDescription'];
-            unset($result['VehicleDescription']);
-            return $result;
-        }, $content['Results']);
-
-        return new JsonResponse($content);
+        $this->apiService = $apiService;
     }
+
+    public function vehiclesGetAction(int $year, string $manufacturer, string $model): JsonResponse
+    {
+        $response = $this->apiService->getVehicles($year, $manufacturer, $model);
+        return new JsonResponse($response);
+    }
+
+    public function vehiclesJsonPostAction(Request $request): JsonResponse
+    {
+        $year = $request->json('modelYear');
+        $manufacturer = $request->json('manufacturer');
+        $model = $request->json('model');
+
+        $response = $this->apiService->getVehicles($year, $manufacturer, $model);
+        return new JsonResponse($response);
+    }
+
+
 }

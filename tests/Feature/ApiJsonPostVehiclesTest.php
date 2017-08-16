@@ -7,26 +7,36 @@ use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
-class ApiGetVehiclesTest extends TestCase
+class ApiJsonPostVehiclesTest extends TestCase
 {
 
     public function testAudiA3()
     {
-        $response = $this->get('/vehicles/2015/Audi/A3');
+        $response = $this->json(
+            'POST',
+            '/vehicles',
+            ['modelYear' => 2015, 'manufacturer' => 'Audi', 'model' => 'A3']
+        );
         $response->assertExactJson(ApiVehiclesResults::AUDI_A3);
     }
 
     public function testToyotaYaris()
     {
-        $response = $this->get('/vehicles/2015/Toyota/Yaris');
-
+        $response = $this->json(
+            'POST',
+            '/vehicles',
+            ['modelYear' => 2015, 'manufacturer' => 'Toyota', 'model' => 'Yaris']
+        );
         $response->assertExactJson(ApiVehiclesResults::TOYOTA_YARIS);
     }
 
     public function testFordCrownVictoria()
     {
-        $response = $this->get('/vehicles/2013/Ford/CrownVictoria');
-
+        $response = $this->json(
+            'POST',
+            '/vehicles',
+            ['modelYear' => 2013, 'manufacturer' => 'Ford', 'model' => 'CrownVictoria']
+        );
         $response->assertExactJson(ApiVehiclesResults::FORD_CROWN_VICTORIA);
     }
 }

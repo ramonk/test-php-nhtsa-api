@@ -15,4 +15,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/vehicles/{year}/{manufacturer}/{model}', ApiController::class . '@vehiclesAction');
+Route::get('/vehicles/{year}/{manufacturer}/{model}', ApiController::class . '@vehiclesGetAction');
+
+Route::post('/vehicles', ApiController::class . '@vehiclesJsonPostAction');
